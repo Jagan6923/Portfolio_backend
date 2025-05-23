@@ -25,45 +25,35 @@ const Contact = mongoose.model('Contact', contactSchema);
 // Express app setup
 const app = express();
 
-// ✅ CORS setup to allow both versions of your domain
+// ✅ CORS setup using cors npm package with dynamic origin checking
 const allowedOrigins = ['https://jeyaraman.me', 'https://www.jeyaraman.me'];
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
+        // Allow requests with no origin like mobile apps or curl
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
         }
-    }
+    },
+    methods: ['GET', 'POST', 'OPTIONS'],
+    credentials: true,
 }));
 
 app.use(express.json());
 
-// ✅ Nodemailer transporter
+// Nodemailer transporter
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'jaganjeyaraman@gmail.com', // your email
-        pass: 'wpyy ltqr tdxj gstd', // Gmail app password
+        pass: 'wpyy ltqr tdxj gstd',     // your app password
     },
 });
 
-// ✅ POST endpoint
+// POST endpoint
 app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, message } = req.body;
@@ -80,11 +70,11 @@ app.post('/api/contact', async (req, res) => {
             to: 'jaganjeyaraman@gmail.com',
             subject: 'New Contact Form Submission',
             html: `
-        <h3>New message received:</h3>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong><br/>${message}</p>
-      `,
+                <h3>New message received:</h3>
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Message:</strong><br/>${message}</p>
+            `,
         });
 
         res.status(201).json({ message: 'Message received and email sent!' });
