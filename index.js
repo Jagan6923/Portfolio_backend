@@ -26,7 +26,7 @@ const Contact = mongoose.model('Contact', contactSchema);
 const app = express();
 
 // ✅ CORS setup using cors npm package with dynamic origin checking
-const allowedOrigins = ['https://jeyaraman.me', 'https://www.jeyaraman.me'];
+const allowedOrigins = ['https://jeyaraman.me', 'https://www.jeyaraman.me','https://jey-me.vercel.app/'];
 
 app.use(cors({
     origin: function (origin, callback) {
