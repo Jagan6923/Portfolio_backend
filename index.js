@@ -25,21 +25,13 @@ const Contact = mongoose.model('Contact', contactSchema);
 // Express app setup
 const app = express();
 
-// ✅ CORS setup using cors npm package with dynamic origin checking
-const allowedOrigins = ['https://jey-me.vercel.app/','https://jey-me.vercel.app'];
-
+// ✅ CORS setup using cors npm package
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin like mobile apps or curl
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: ['https://jey-me.vercel.app', 'http://localhost:3000'],
     methods: ['GET', 'POST', 'OPTIONS'],
     credentials: true,
+    allowedHeaders: ['Content-Type'],
+    optionsSuccessStatus: 200,
 }));
 
 app.use(express.json());
