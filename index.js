@@ -57,7 +57,7 @@ app.post('/api/contact', async (req, res) => {
         const contact = new Contact({ name, email, message });
         await contact.save();
 
-        // Send email in background (don't wait for it)
+        // Send email with error handling
         transporter.sendMail({
             from: `"Portfolio Contact" <jaganjeyaraman@gmail.com>`,
             to: 'jaganjeyaraman@gmail.com',
@@ -68,7 +68,13 @@ app.post('/api/contact', async (req, res) => {
                 <p><strong>Email:</strong> ${email}</p>
                 <p><strong>Message:</strong><br/>${message}</p>
             `,
-        }).catch(err => console.error('Email error:', err));
+        }, (err, info) => {
+            if (err) {
+                console.error('❌ Email failed:', err.message);
+            } else {
+                console.log('✅ Email sent:', info.response);
+            }
+        });
 
         res.status(201).json({ message: 'Message received!' });
     } catch (err) {
