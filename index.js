@@ -57,7 +57,8 @@ app.post('/api/contact', async (req, res) => {
         const contact = new Contact({ name, email, message });
         await contact.save();
 
-        await transporter.sendMail({
+        // Send email in background (don't wait for it)
+        transporter.sendMail({
             from: `"Portfolio Contact" <jaganjeyaraman@gmail.com>`,
             to: 'jaganjeyaraman@gmail.com',
             subject: 'New Contact Form Submission',
@@ -67,15 +68,14 @@ app.post('/api/contact', async (req, res) => {
                 <p><strong>Email:</strong> ${email}</p>
                 <p><strong>Message:</strong><br/>${message}</p>
             `,
-        });
+        }).catch(err => console.error('Email error:', err));
 
-        res.status(201).json({ message: 'Message received and email sent!' });
+        res.status(201).json({ message: 'Message received!' });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error.' });
+        console.error('Contact API Error:', err);
+        res.status(500).json({ error: 'Failed to save message.' });
     }
 });
-
 // Test route
 app.get('/', (req, res) => {
     res.send('Welcome to the Portfolio API');
